@@ -1,1 +1,2 @@
-# flic - easy Inter-process communication via TCP
+# flic
+easy Inter-process communication via TCP
