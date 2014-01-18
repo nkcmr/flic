@@ -1,7 +1,7 @@
 {
   "name": "flic",
   "version": "0.0.1",
-  "description": "Inter-process Communication for node.js",
+  "description": "Easy Inter-process Communication via TCP for node.js",
   "main": "lib/flic.js",
   "scripts": {
     "test": "mocha"
