@@ -8,9 +8,9 @@ var flic = require("flic");
 var port = 8221;
 
 // Master can be in any process, and slaves can be in any process
-var master = flic.master(port);
+var master = new flic.master(port);
 
-var cache_slave = flic.slave("cache", port, function(err){
+var cache_slave = new flic.slave("cache", port, function(err){
 	console.log("Cache slave online!");});
 cache_slave.on("get", function(key, callback){
 	// get something from a cache
@@ -20,7 +20,7 @@ cache_slave.on("get", function(key, callback){
 Somewhere else, far far away!
 
 ```javascript
-var some_slave = flic.slave("someslave", port, function(){
+var some_slave = new flic.slave("someslave", port, function(){
 	console.log("someslave online!");});
 
 var key = "cachekey";
