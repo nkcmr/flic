@@ -21,5 +21,10 @@
   "bugs": {
     "url": "https://github.com/nkcmr/flic/issues"
   },
-  "homepage": "https://github.com/nkcmr/flic"
+  "homepage": "https://github.com/nkcmr/flic",
+  "dependencies": {
+    "debug": "~0.7.4",
+    "lodash": "~2.4.1",
+    "uuid": "~1.4.1"
+  }
 }
