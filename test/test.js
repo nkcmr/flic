@@ -91,3 +91,28 @@ exports["Slave tell - nominal (receiving events and sending callbacks)"] = funct
   }, 500);
 }
 
+exports["Slave tell - non-existent slave"] = function(test){
+  test.expect(1);
+  slave2.tell("i_dont_exist:who_cares", function(err){
+    test.equal(err, "Error: Attempting to tell non-existent slave!", "Callback returned a different error than anticipated: '%s'", err);
+    test.done();
+  });
+};
+
+exports["Slave shout - nominal"] = function(test){
+  test.expect(1);
+  slave1.on("shout1", function(param1){
+    test.equal(param1, "ilovenodejs", "Shout recipients received an unexpected value from the shouter: %s", param1);
+    test.done();
+  });
+  slave2.shout("shout1", "ilovenodejs");
+}
+
+exports["Master close"] = function(test){
+  test.expect(1);
+  slave1.on("master-close", function(param1){
+    test.equal(param1, "ilovenodejs", "Master close event recipients received an unexpected value from the shouter: %s", param1);
+    test.done();
+  });
+  test_master.close(["ilovenodejs"]);
+}
