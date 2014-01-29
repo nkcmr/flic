@@ -1,5 +1,5 @@
 # flic
-easy Inter-process communication via TCP
+Easy Inter-process communication via TCP
 
 # Usage
 ```javascript
@@ -12,13 +12,15 @@ var Slave = flic.slave;
 // Master can be in any process, and slaves can be in any process
 var master = new Master();
 
-var cache_slave = new Slave("cache", function(err){
+var slave1 = new Slave("slave1", function(err){
 	// Successfully connected to Master
 	console.log("Cache slave online!");});
-cache_slave.on("get", function(key, callback){
-	// get something from a cache
-	
-	callback(null, val);});
+slave1.on("event", function(param1, callback){
+	// do awesomeness	
+	console.log(param1); // -> "flic_is_easy"
+
+	//send a callback fig.1
+	callback(null, "ilovenodejs");});
 ```
 Somewhere else, far far away!
 
@@ -28,14 +30,13 @@ Somewhere else, far far away!
 // Cannot be told (Slave.tell) anything
 // Can tell other slaves
 // Can receive shouts
+// Helps avoid duplicate slave names
 
 var anonymous_slave = new Slave(function(){
 	console.log("someslave online!");});
 
-var key = "cachekey";
-
-anonymous_slave.tell("cache:get", key, function(err, val){
-	// we have the value!!});
+anonymous_slave.tell("slave1:event", "flic_is_easy", function(err, param2){
+	console.log(param2); // -> "ilovenodejs"});
 
 ```
 
