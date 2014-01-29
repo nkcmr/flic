@@ -59,3 +59,35 @@ exports["Slave construct - no master present"] = function(test){
     test.done();
   });
 }
+
+var slave1, slave2;
+
+exports["Slave tell - nominal (receiving events)"] = function(test){
+  test.expect(1);
+  slave2 = new Slave("slave2", function(){});
+  slave1 = new Slave("slave1", function(){});
+  slave1.on("test_event", function(param1){
+    test.equal(param1, "testParam", "param1 is not right: %s", param1);
+    test.done();
+  });
+
+  setTimeout(function() {
+    slave2.tell("slave1:test_event", "testParam");
+  }, 500);
+}
+
+exports["Slave tell - nominal (receiving events and sending callbacks)"] = function(test){
+  test.expect(2);
+  slave1.on("test_event2", function(param1, callback){
+    test.equal(param1, "testParam", "param1 is not right: %s", param1);
+    callback(null, param1);
+  });
+
+  setTimeout(function() {
+    slave2.tell("slave1:test_event2", "testParam", function(err, param2){
+      test.equal(param2, "testParam", "param2 is not right: %s", param2);
+      test.done();
+    });
+  }, 500);
+}
+
