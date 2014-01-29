@@ -1,41 +1,61 @@
-var root = __dirname.split("/");
-var root_dir = "";
-root.shift();
-root.pop();
-for (var i = 0; i < root.length; i++) {
-	root_dir += "/" + root[i];
+var flic = require("../");
+var Master = flic.master;
+var Slave = flic.slave;
+
+var test_master;
+
+exports["Master construct - nominal"] = function(test){
+	test.expect(2);
+	test_master = new Master();
+	test.ok(test_master instanceof Master);
+	test.strictEqual(test_master.port, 8221);
+	test.done();
 }
 
-var flic = require(root_dir);
-
-var master = new flic.Master(1450);
-
-var slave = new flic.Slave("cache", 1450, function(err){
-	if(err) throw err;
-
-	console.log("Cache online...");
-});
-
-var slave2 = new flic.Slave("slave2", 1450, function(err){
-	if(err) throw err;
-
-	console.log("Slave2 online...")
-});
-
-slave2.on("eventt", function(param1, callback){
-
-	console.log("slave2 received eventt: %s", param1);
-
-	callback(null, "nkcmr");
-
-});
-
-setTimeout(function() {
-	console.log("running tell to slave2");
-
-	slave.tell("slave2:eventt", "haha", function(err, result){
-		if(err) throw err;
-
-		console.log("tell callback: %s", result);
+exports["Master construct - invalid port number (too low)"] = function(test){
+	test.expect(1);
+	test.throws(function(){
+		var a = new Master(1);
 	});
-}, 1000);
+	test.done();
+}
+
+exports["Master construct - invalid port number (too high)"] = function(test){
+	test.expect(1);
+	test.throws(function(){
+		var a = new Master(85668);
+	});
+	test.done();
+}
+
+exports["Slave construct - nominal"] = function(test){
+	test.expect(1);
+	var slave = new Slave("slave", function(err){
+		test.equal(err, null, "Callback returned an unexpected error.");
+		test.done();
+	});
+}
+
+exports["Slave construct - name taken"] = function(test){
+	test.expect(1);
+	var slave = new Slave("slave", function(err){
+		test.equal(err, "Error: Duplicate slave name!", "Callback returned a different error than anticipated: '%s'", err);
+		test.done();
+	});
+}
+
+exports["Slave construct - invalid name"] = function(test){
+	test.expect(1);
+	test.throws(function(){
+		var slave = new Slave("&*@dddd", function(){});
+	});
+	test.done();
+}
+
+exports["Slave construct - no master present"] = function(test){
+	test.expect(1);
+	var slave = new Slave("no_master", 9887, function(err){
+		test.equal(err, "Error: Slave could not connect to Master!", "Callback returned a different error than anticipated: '%s'", err);
+		test.done();
+	});
+}
