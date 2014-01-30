@@ -1,118 +1,118 @@
 var flic = require("../");
-var Master = flic.master;
-var Slave = flic.slave;
+var Bridge = flic.bridge;
+var Node = flic.node;
 
-var test_master;
+var test_bridge;
 
-exports["Master construct - nominal"] = function(test){
+exports["Bridge construct - nominal"] = function(test){
   test.expect(2);
-  test_master = new Master();
-  test.ok(test_master instanceof Master);
-  test.strictEqual(test_master.port, 8221);
+  test_bridge = new Bridge();
+  test.ok(test_bridge instanceof Bridge);
+  test.strictEqual(test_bridge.port, 8221);
   test.done();
 }
 
-exports["Master construct - invalid port number (too low)"] = function(test){
+exports["Bridge construct - invalid port number (too low)"] = function(test){
   test.expect(1);
   test.throws(function(){
-    var a = new Master(1);
+    var a = new Bridge(1);
   });
   test.done();
 }
 
-exports["Master construct - invalid port number (too high)"] = function(test){
+exports["Bridge construct - invalid port number (too high)"] = function(test){
   test.expect(1);
   test.throws(function(){
-    var a = new Master(85668);
+    var a = new Bridge(85668);
   });
   test.done();
 }
 
-exports["Slave construct - nominal"] = function(test){
+exports["Node construct - nominal"] = function(test){
   test.expect(1);
-  var slave = new Slave("slave", function(err){
+  var node = new Node("node", function(err){
     test.equal(err, null, "Callback returned an unexpected error.");
     test.done();
   });
 }
 
-exports["Slave construct - name taken"] = function(test){
+exports["Node construct - name taken"] = function(test){
   test.expect(1);
-  var slave = new Slave("slave", function(err){
-    test.equal(err, "Error: Duplicate slave name!", "Callback returned a different error than anticipated: '%s'", err);
+  var node = new Node("node", function(err){
+    test.equal(err, "Error: Duplicate node name!", "Callback returned a different error than anticipated: '%s'", err);
     test.done();
   });
 }
 
-exports["Slave construct - invalid name"] = function(test){
+exports["Node construct - invalid name"] = function(test){
   test.expect(1);
   test.throws(function(){
-    var slave = new Slave("&*@dddd", function(){});
+    var node = new Node("&*@dddd", function(){});
   });
   test.done();
 }
 
-exports["Slave construct - no master present"] = function(test){
+exports["Node construct - no bridge present"] = function(test){
   test.expect(1);
-  var slave = new Slave("no_master", 9887, function(err){
-    test.equal(err, "Error: Slave could not connect to Master!", "Callback returned a different error than anticipated: '%s'", err);
+  var node = new Node("no_bridge", 9887, function(err){
+    test.equal(err, "Error: Node could not connect to Bridge!", "Callback returned a different error than anticipated: '%s'", err);
     test.done();
   });
 }
 
-var slave1, slave2;
+var node1, node2;
 
-exports["Slave tell - nominal (receiving events)"] = function(test){
+exports["Node tell - nominal (receiving events)"] = function(test){
   test.expect(1);
-  slave2 = new Slave("slave2", function(){});
-  slave1 = new Slave("slave1", function(){});
-  slave1.on("test_event", function(param1){
+  node2 = new Node("node2", function(){});
+  node1 = new Node("node1", function(){});
+  node1.on("test_event", function(param1){
     test.equal(param1, "testParam", "param1 is not right: %s", param1);
     test.done();
   });
 
   setTimeout(function() {
-    slave2.tell("slave1:test_event", "testParam");
+    node2.tell("node1:test_event", "testParam");
   }, 25);
 }
 
-exports["Slave tell - nominal (receiving events and sending callbacks)"] = function(test){
+exports["Node tell - nominal (receiving events and sending callbacks)"] = function(test){
   test.expect(2);
-  slave1.on("test_event2", function(param1, callback){
+  node1.on("test_event2", function(param1, callback){
     test.equal(param1, "testParam", "param1 is not right: %s", param1);
     callback(null, param1);
   });
 
   setTimeout(function() {
-    slave2.tell("slave1:test_event2", "testParam", function(err, param2){
+    node2.tell("node1:test_event2", "testParam", function(err, param2){
       test.equal(param2, "testParam", "param2 is not right: %s", param2);
       test.done();
     });
   }, 25);
 }
 
-exports["Slave tell - non-existent slave"] = function(test){
+exports["Node tell - non-existent node"] = function(test){
   test.expect(1);
-  slave2.tell("i_dont_exist:who_cares", function(err){
-    test.equal(err, "Error: Attempting to tell non-existent slave!", "Callback returned a different error than anticipated: '%s'", err);
+  node2.tell("i_dont_exist:who_cares", function(err){
+    test.equal(err, "Error: Attempting to tell non-existent node!", "Callback returned a different error than anticipated: '%s'", err);
     test.done();
   });
 };
 
-exports["Slave shout - nominal"] = function(test){
+exports["Node shout - nominal"] = function(test){
   test.expect(1);
-  slave1.on("shout1", function(param1){
+  node1.on("shout1", function(param1){
     test.equal(param1, "ilovenodejs", "Shout recipients received an unexpected value from the shouter: %s", param1);
     test.done();
   });
-  slave2.shout("shout1", "ilovenodejs");
+  node2.shout("shout1", "ilovenodejs");
 }
 
-exports["Master close"] = function(test){
+exports["Bridge close"] = function(test){
   test.expect(1);
-  slave1.on("$CLOSE", function(param1){
-    test.equal(param1, "ilovenodejs", "Master close event recipients received an unexpected value from the shouter: %s", param1);
+  node1.on("$CLOSE", function(param1){
+    test.equal(param1, "ilovenodejs", "Bridge close event recipients received an unexpected value from the shouter: %s", param1);
     test.done();
   });
-  test_master.close(["ilovenodejs"]);
+  test_bridge.close(["ilovenodejs"]);
 }
