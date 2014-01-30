@@ -73,7 +73,7 @@ exports["Slave tell - nominal (receiving events)"] = function(test){
 
   setTimeout(function() {
     slave2.tell("slave1:test_event", "testParam");
-  }, 500);
+  }, 25);
 }
 
 exports["Slave tell - nominal (receiving events and sending callbacks)"] = function(test){
@@ -88,7 +88,7 @@ exports["Slave tell - nominal (receiving events and sending callbacks)"] = funct
       test.equal(param2, "testParam", "param2 is not right: %s", param2);
       test.done();
     });
-  }, 500);
+  }, 25);
 }
 
 exports["Slave tell - non-existent slave"] = function(test){
@@ -110,7 +110,7 @@ exports["Slave shout - nominal"] = function(test){
 
 exports["Master close"] = function(test){
   test.expect(1);
-  slave1.on("master-close", function(param1){
+  slave1.on("$CLOSE", function(param1){
     test.equal(param1, "ilovenodejs", "Master close event recipients received an unexpected value from the shouter: %s", param1);
     test.done();
   });
