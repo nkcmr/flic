@@ -91,6 +91,14 @@ exports["Node tell - nominal (receiving events and sending callbacks)"] = functi
   }, 25);
 }
 
+exports["Node tell - invalid who and what parameter"] = function(test){
+  test.expect(1);
+  test.throws(function(){
+    node1.tell("iaminvalid", "blabla", function(err){});
+  });
+  test.done();
+}
+
 exports["Node tell - non-existent node"] = function(test){
   test.expect(1);
   node2.tell("i_dont_exist:who_cares", function(err){
