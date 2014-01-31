@@ -126,5 +126,5 @@ exports["Bridge close"] = function(test){
 }
 
 setTimeout(function(){
-  process.exit(1);
-}, 10000);
+  process.exit(0);
+}, 5000);
