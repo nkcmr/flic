@@ -1,6 +1,9 @@
 # flic
 Easy Inter-process communication via TCP
 
+[![Dependency Status](https://david-dm.org/nkcmr/flic.png?theme=shields.io)](https://david-dm.org/nkcmr/flic)
+[![Build Status](https://travis-ci.org/nkcmr/flic.png?branch=master)](https://travis-ci.org/nkcmr/flic)
+
 # Usage
 ```javascript
 var flic = require("flic");
@@ -45,4 +48,4 @@ anonymous_node.tell("node1:event", "flic_is_easy", function(err, param2){
 ```
 
 # Concept
-flic is modeled around the node.js EventEmitter, but is adapted to be able to communicate
+flic is modeled around the node.js EventEmitter, but is built around a TCP server to be able to send events between processes. The basic idea is that you can emit events in completely different processes over the `Bridge`.
