@@ -4,40 +4,45 @@ Easy Inter-process communication via TCP
 # Usage
 ```javascript
 var flic = require("flic");
-var Master = flic.master;
-var Slave = flic.slave;
+var Bridge = flic.bridge;
+var Node = flic.node;
 
 // Default port is 8221
 
-// Master can be in any process, and slaves can be in any process
-var master = new Master();
+// Bridge can be in any process, and nodes can be in any process
+var bridge = new Bridge();
 
-var slave1 = new Slave("slave1", function(err){
-	// Successfully connected to Master
-	console.log("Cache slave online!");});
-slave1.on("event", function(param1, callback){
+var node1 = new Node("node1", function(err){
+	// Successfully connected to Bridge
+	console.log("Cache node online!");
+});
+node1.on("event", function(param1, callback){
 	// do awesomeness	
 	console.log(param1); // -> "flic_is_easy"
 
 	//send a callback fig.1
-	callback(null, "ilovenodejs");});
+	callback(null, "ilovenodejs");
+});
 ```
 Somewhere else, far far away!
 
 ```javascript
-// Make anonymous slaves by not giving it a name
-// Anonymous slaves:
-// Cannot be told (Slave.tell) anything
-// Can tell other slaves
+// Make anonymous nodes by not giving it a name
+// Anonymous nodes:
+// Cannot be told (Node.tell) anything
+// Can tell other nodes
 // Can receive shouts
-// Helps avoid duplicate slave names
+// Helps avoid duplicate node names
 
-var anonymous_slave = new Slave(function(){
-	console.log("someslave online!");});
+var anonymous_node = new Node(function(){
+	console.log("somenode online!");
+});
 
-anonymous_slave.tell("slave1:event", "flic_is_easy", function(err, param2){
-	console.log(param2); // -> "ilovenodejs"});
+anonymous_node.tell("node1:event", "flic_is_easy", function(err, param2){
+	console.log(param2); // -> "ilovenodejs"
+});
 
 ```
 
 # Concept
+flic is modeled around the node.js EventEmitter, but is adapted to be able to communicate
