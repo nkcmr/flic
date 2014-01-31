@@ -124,3 +124,7 @@ exports["Bridge close"] = function(test){
   });
   test_bridge.close(["ilovenodejs"]);
 }
+
+setTimeout(function(){
+  process.exit(1);
+}, 10000);
