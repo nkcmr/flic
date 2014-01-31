@@ -4,7 +4,7 @@
   "description": "Easy Inter-process Communication via TCP for node.js",
   "main": "lib/flic.js",
   "scripts": {
-    "test": "mocha"
+    "test": "nodeunit ./test/test.js"
   },
   "repository": {
     "type": "git",
@@ -26,5 +26,8 @@
     "debug": "~0.7.4",
     "lodash": "~2.4.1",
     "uuid": "~1.4.1"
+  },
+  "devDependencies": {
+    "nodeunit": "~0.8.4"
   }
 }
