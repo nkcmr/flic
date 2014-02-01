@@ -17,7 +17,7 @@ var bridge = new Bridge();
 
 var node1 = new Node("node1", function(err){
 	// Successfully connected to Bridge
-	console.log("Cache node online!");
+	console.log("node1 online!");
 });
 node1.on("event", function(param1, callback){
 	// do awesomeness	
