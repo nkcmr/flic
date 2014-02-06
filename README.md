@@ -108,7 +108,7 @@ Closes the bridge and sends any data to connected nodes.
 
 - `args [mixed]` (optional) any parameters to be sent to connected nodes upon close.
 
-The MIT License (MIT)
+# The MIT License (MIT)
 
 Copyright (c) 2013 Nick Comer
 
