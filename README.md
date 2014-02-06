@@ -4,6 +4,17 @@ Easy Inter-process communication via TCP
 [![Dependency Status](https://david-dm.org/nkcmr/flic.png?theme=shields.io)](https://david-dm.org/nkcmr/flic)
 [![Build Status](https://travis-ci.org/nkcmr/flic.png?branch=master)](https://travis-ci.org/nkcmr/flic)
 
+# Install
+via git:
+```bash
+ [root@localhost ~] npm install git://github.com/nkcmr/flic
+```
+
+or npm
+```bash
+ [root@localhost ~] npm install flic
+```
+
 # Usage
 ```javascript
 var flic = require("flic");
