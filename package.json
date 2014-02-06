@@ -1,6 +1,6 @@
 {
   "name": "flic",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Easy Inter-process Communication via TCP for node.js",
   "main": "lib/flic.js",
   "scripts": {
