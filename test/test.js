@@ -118,7 +118,7 @@ exports["Node shout - nominal"] = function(test){
 
 exports["Bridge close"] = function(test){
   test.expect(1);
-  node1.on("$CLOSE", function(param1){
+  node1.on("close", function(param1){
     test.equal(param1, "ilovenodejs", "Bridge close event recipients received an unexpected value from the shouter: %s", param1);
     test.done();
   });
