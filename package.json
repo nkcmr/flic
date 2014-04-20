@@ -1,6 +1,6 @@
 {
   "name": "flic",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Easy Inter-process Communication via TCP for node.js",
   "main": "lib/flic.js",
   "scripts": {
@@ -23,9 +23,9 @@
   },
   "homepage": "https://github.com/nkcmr/flic",
   "dependencies": {
-    "debug": "~0.7.4",
-    "lodash": "~2.4.1",
-    "uuid": "~1.4.1"
+    "uuid": "~1.4.1",
+    "debug": "^0.8.0",
+    "lodash": "^2.4.1"
   },
   "devDependencies": {
     "nodeunit": "~0.8.4"
