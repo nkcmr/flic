@@ -23,9 +23,9 @@
   },
   "homepage": "https://github.com/nkcmr/flic",
   "dependencies": {
-    "uuid": "~1.4.1",
-    "debug": "^0.8.0",
-    "lodash": "^2.4.1"
+    "uuid": "1.4.1",
+    "debug": "0.8.0",
+    "lodash": "2.4.1"
   },
   "devDependencies": {
     "nodeunit": "~0.8.4"
