@@ -39,7 +39,7 @@ exports['Node construct - nominal'] = function(test) {
 exports['Node construct - name taken'] = function(test) {
   test.expect(1);
   var node = new Node('node', function(err) {
-    test.equal(err, 'Error: Duplicate node name!', 'Callback returned a different error than anticipated: \'%s\'', err);
+    test.equal(err, 'duplicate-node', 'Callback returned a different error than anticipated: \'%s\'', err);
     test.done();
   });
 }
