@@ -8,7 +8,7 @@ exports["Bridge construct - nominal"] = function(test){
   test.expect(2);
   test_bridge = new Bridge();
   test.ok(test_bridge instanceof Bridge);
-  test.strictEqual(test_bridge.port, 8221);
+  test.strictEqual(test_bridge._port, 8221);
   test.done();
 }
 
