@@ -47,7 +47,7 @@ exports['Node construct - name taken'] = function(test) {
 exports['Node construct - invalid name'] = function(test) {
   test.expect(1);
   test.throws(function() {
-    var node = new Node('&*@dddd', function() {});
+    var node = new Node('&*@dddd');
   });
   test.done();
 }
@@ -102,7 +102,7 @@ exports['Node tell - invalid who and what parameter'] = function(test) {
 exports['Node tell - non-existent node'] = function(test) {
   test.expect(1);
   node2.tell('i_dont_exist:who_cares', function(err) {
-    test.equal(err, 'Error: Attempting to tell non-existent node!', 'Callback returned a different error than anticipated: \'%s\'', err);
+    test.equal(err, 'unknown-node', 'Callback returned a different error than anticipated: \'%s\'', err);
     test.done();
   });
 };
