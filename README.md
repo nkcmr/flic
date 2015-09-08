@@ -1,8 +1,8 @@
-[![Stories in Ready](https://badge.waffle.io/nkcmr/flic.png?label=ready&title=Ready)](https://waffle.io/nkcmr/flic)
 # flic
 Easy Inter-process communication via TCP
 
 [![Build Status](https://travis-ci.org/nkcmr/flic.png?branch=master)](https://travis-ci.org/nkcmr/flic)
+[![Stories in Ready](https://badge.waffle.io/nkcmr/flic.png?label=ready&title=Ready)](https://waffle.io/nkcmr/flic)
 
 # Install
 via git:
