@@ -236,7 +236,7 @@ describe('Node', function () {
         assert.ifError(err)
         x.leave()
         setTimeout(function () {
-          assert.ok(!b._sockets.hasOwnProperty('leaving_node'), JSON.stringify(Object.keys(b._sockets)))
+          assert.ok(!b._sockets.hasOwnProperty('leaving_node'), b._sockets)
           done()
         }, 20)
       })
