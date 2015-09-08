@@ -1,162 +1,236 @@
-// flic
-// written by: nick comer (http://nick.comer.io)
-
-// Copyright (c) 2014 Nick Comer
-
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+'use strict'
 
 var flic = require('../lib/flic')
 var Bridge = flic.bridge
-/*eslint-disable no-undef */
 var Node = flic.node
-/*eslint-enable no-undef */
 
 var util = require('util')
+var assert = require('assert')
 
-var test_bridge
+var async = require('async')
 
-exports['Bridge construct - nominal'] = function (test) {
-  test.expect(2)
-  test_bridge = new Bridge()
-  test.ok(test_bridge instanceof Bridge)
-  test.strictEqual(test_bridge._port, 8221)
-  test.done()
-}
+describe('Bridge', function () {
+  
+  describe('construction', function () {
+    
+    var test_bridge
 
-/*eslint-disable no-unused-vars */
-
-exports['Bridge construct - invalid port number (too low)'] = function (test) {
-  test.expect(1)
-  test.throws(function () {
-    var a = new Bridge(1)
-  })
-  test.done()
-}
-
-exports['Bridge construct - invalid port number (too high)'] = function (test) {
-  test.expect(1)
-  test.throws(function () {
-    var a = new Bridge(85668)
-  })
-  test.done()
-}
-
-exports['Node construct - nominal'] = function (test) {
-  test.expect(1)
-  var node = new Node('node', function (err) {
-    test.equal(err, null, util.format('Callback returned an unexpected error.', err))
-    test.done()
-  })
-}
-
-exports['Node construct - name taken'] = function (test) {
-  test.expect(1)
-  var node = new Node('node', function (err) {
-    test.equal(err, 'duplicate-node', 'Callback returned a different error than anticipated: \'%s\'', err)
-    test.done()
-  })
-}
-
-exports['Node construct - invalid name'] = function (test) {
-  test.expect(1)
-  test.throws(function () {
-    var node = new Node('&*@dddd')
-  })
-  test.done()
-}
-
-exports['Node construct - no bridge present'] = function (test) {
-  test.expect(1)
-  var node = new Node('no_bridge', 9887, function (err) {
-    test.equal(err, 'Error: Node could not connect to Bridge!', 'Callback returned a different error than anticipated: \'%s\'', err)
-    test.done()
-  })
-}
-
-/*eslint-enable no-unused-vars */
-
-var node1, node2
-
-exports['Node tell - nominal (receiving events)'] = function (test) {
-  test.expect(1)
-  node2 = new Node('node2', function () {})
-  node1 = new Node('node1', function () {})
-  node1.on('test_event', function (param1) {
-    test.equal(param1, 'testParam', 'param1 is not right: %s', param1)
-    test.done()
-  })
-
-  setTimeout(function () {
-    node2.tell('node1:test_event', 'testParam')
-  }, 25)
-}
-
-exports['Node tell - nominal (receiving events and sending callbacks)'] = function (test) {
-  test.expect(3)
-  node1.on('test_event2', function (param1, callback) {
-    test.equal(param1, 'testParam', 'param1 is not right: %s', param1)
-    callback(null, param1)
-  })
-
-  setTimeout(function () {
-    node2.tell('node1:test_event2', 'testParam', function (err, param2) {
-      test.ok(!err)
-      test.equal(param2, 'testParam', 'param2 is not right: %s', param2)
-      test.done()
+    after(function () {
+      test_bridge.close()
     })
-  }, 25)
-}
 
-exports['Node tell - invalid who and what parameter'] = function (test) {
-  test.expect(1)
-  test.throws(function () {
-    node1.tell('iaminvalid', 'blabla', function () {})
+    it('should construct normally', function () {
+      test_bridge = new Bridge()
+      test_bridge._tcpServer.unref()
+      assert(test_bridge instanceof Bridge)
+      assert.equal(test_bridge._port, 8221)
+    })
+
   })
-  test.done()
-}
 
-exports['Node tell - non-existent node'] = function (test) {
-  test.expect(1)
-  node2.tell('i_dont_exist:who_cares', function (err) {
-    test.equal(err, 'unknown-node', 'Callback returned a different error than anticipated: \'%s\'', err)
-    test.done()
+  describe('close', function () {
+    
+    var b, good_nodes
+
+    good_nodes = []
+
+    before(function (done) {
+      b = new Bridge()
+      good_nodes.push(new Node('node_1', function (err) {
+        assert.ifError(err)
+        good_nodes.push(new Node('node_2', function (err) {
+          assert.ifError(err)
+          done()
+        }))
+      }))
+    })
+
+    it('should send a close message to all connected nodes', function (done) {
+      
+      async.parallel([
+        function (cb) {
+          good_nodes[0].on('close', function (parting_data) {
+            assert.equal(parting_data, 'live long and prosper')
+            cb()
+          })
+        },
+        function (cb) {
+          good_nodes[1].on('close', function (parting_data) {
+            assert.equal(parting_data, 'live long and prosper')
+            cb()
+          })
+        }
+      ], done)
+
+      b.close(['live long and prosper'])
+      b = undefined
+    })
+
   })
-}
 
-exports['Node shout - nominal'] = function (test) {
-  test.expect(1)
-  node1.on('shout1', function (param1) {
-    test.equal(param1, 'ilovenodejs', 'Shout recipients received an unexpected value from the shouter: %s', param1)
-    test.done()
+})
+
+describe('Node', function () {
+  
+  describe('construction', function () {
+
+    var b
+
+    before(function () {
+      b = new Bridge()
+    })
+
+    after(function () {
+      b.close()
+      b = undefined
+    })
+
+    it('should construct normally and callback when connected to the bridge', function (done) {
+      new Node('node_1', function (err) {
+        assert.ifError(err)
+        done()
+      })
+    })
+
+    it('should fail because the name is taken', function (done) {
+      new Node('node_1', function (err) {
+        assert(err)
+        done()
+      })
+    })
+
+    it('should fail because there is no bridge listening on specified port', function (done) {
+      this.timeout(3000)
+
+      new Node('muh_dumb_node', 9999, function (err) {
+        assert(err)
+        done()
+      })
+    })
+
   })
-  node2.shout('shout1', 'ilovenodejs')
-}
 
-exports['Bridge close'] = function (test) {
-  test.expect(1)
-  node1.on('close', function (param1) {
-    test.equal(param1, 'ilovenodejs', 'Bridge close event recipients received an unexpected value from the shouter: %s', param1)
-    test.done()
+  describe('tell', function () {
+    
+    var b, good_nodes
+
+    good_nodes = []
+
+    before(function (done) {
+      b = new Bridge()
+      good_nodes.push(new Node('node_1', function (err) {
+        assert.ifError(err)
+        good_nodes.push(new Node('node_2', function (err) {
+          assert.ifError(err)
+          done()
+        }))
+      }))
+    })
+
+    after(function () {
+      b.close()
+      b = undefined
+    })
+
+    afterEach(function () {
+      good_nodes.forEach(function (n) {
+        n.removeAllListeners()
+      })
+    })
+
+    it('should be able to contact another node', function (done) {
+      good_nodes[0].on('test_event', function (param1) {
+        assert.equal(param1, 'test_param')
+        done()
+      })
+      good_nodes[1].tell('node_1:test_event', 'test_param')
+    })
+
+    it('should be able to contact another node and send callbacks', function (done) {
+      good_nodes[0].on('test_event', function (param1, ack) {
+        assert.equal(param1, 'test_param')
+        ack('my-reply')
+      })
+      good_nodes[1].tell('node_1:test_event', 'test_param', function (a) {
+        assert.equal(a, 'my-reply')
+        done()
+      })
+    })
+
+    it("should fail if the who and what format is not valid ('node_name:remote_event')", function () {
+      assert.throws(function () {
+        good_nodes[1].tell('node_1-what-the-hell')
+      })
+      assert.throws(function () {
+        good_nodes[1].tell('node_1:too:many:colons')
+      })
+    })
+
+    it('should fail if the node being told does not exist', function (done) {
+      good_nodes[0].tell('me-no-exist:remote_event', function (err) {
+        assert.equal(err, 'unknown-node')
+        done()
+      })
+    })
+
   })
-  test_bridge.close(['ilovenodejs'])
-}
 
-setTimeout(function () {
-  process.exit(0)
-}, 5000)
+  describe('shout', function () {
+
+    var b, good_nodes
+
+    good_nodes = []
+
+    before(function (done) {
+      b = new Bridge()
+      async.parallel([
+        function (cb) {
+          good_nodes.push(new Node('node_1', cb))
+        },
+        function (cb) {
+          good_nodes.push(new Node('node_2', cb))
+        },
+        function (cb) {
+          good_nodes.push(new Node('node_3', cb))
+        }
+      ], function (err) {
+        assert.ifError(err)
+        done()
+      })
+    })
+
+    after(function () {
+      b.close()
+      b = undefined
+    })
+
+    afterEach(function () {
+      good_nodes.forEach(function (n) {
+        n.removeAllListeners()
+      })
+    })
+
+    it('should send events to all connected nodes', function (done) {
+      
+      async.parallel([
+        function (done) {
+          good_nodes[0].on('shout_eve', function (param1) {
+            assert.equal(param1, 'test-param')
+            done()
+          })
+        },
+        function (done) {
+          good_nodes[1].on('shout_eve', function (param1) {
+            assert.equal(param1, 'test-param')
+            done()
+          })
+        }
+      ], done)
+
+      good_nodes[2].shout('shout_eve', 'test-param')
+
+    })
+
+  })
+
+})
