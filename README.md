@@ -1,7 +1,6 @@
 # flic
 Easy Inter-process communication via TCP
 
-[![Dependency Status](https://david-dm.org/nkcmr/flic.png?theme=shields.io)](https://david-dm.org/nkcmr/flic)
 [![Build Status](https://travis-ci.org/nkcmr/flic.png?branch=master)](https://travis-ci.org/nkcmr/flic)
 
 # Install
