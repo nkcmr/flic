@@ -218,4 +218,28 @@ describe('Node', function () {
       good_nodes[2].shout('shout_eve', 'test-param')
     })
   })
+
+  describe('leave', function () {
+    var b
+
+    before(function () {
+      b = new Bridge()
+    })
+
+    after(function () {
+      b.close()
+      b = undefined
+    })
+
+    it('should tell the bridge that it is leaving', function (done) {
+      var x = new Node('leaving_node', function (err) {
+        assert.ifError(err)
+        x.leave()
+        setTimeout(function () {
+          assert.ok(!b._sockets.hasOwnProperty('leaving_node'), JSON.stringify(Object.keys(b._sockets)))
+          done()
+        }, 20)
+      })
+    })
+  })
 })
