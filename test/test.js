@@ -1,18 +1,16 @@
+/* global describe, it, before, after, afterEach */
 'use strict'
 
 var flic = require('../lib/flic')
 var Bridge = flic.bridge
 var Node = flic.node
 
-var util = require('util')
 var assert = require('assert')
 
 var async = require('async')
 
 describe('Bridge', function () {
-  
   describe('construction', function () {
-    
     var test_bridge
 
     after(function () {
@@ -25,11 +23,9 @@ describe('Bridge', function () {
       assert(test_bridge instanceof Bridge)
       assert.equal(test_bridge._port, 8221)
     })
-
   })
 
   describe('close', function () {
-    
     var b, good_nodes
 
     good_nodes = []
@@ -46,7 +42,6 @@ describe('Bridge', function () {
     })
 
     it('should send a close message to all connected nodes', function (done) {
-      
       async.parallel([
         function (cb) {
           good_nodes[0].on('close', function (parting_data) {
@@ -65,15 +60,11 @@ describe('Bridge', function () {
       b.close(['live long and prosper'])
       b = undefined
     })
-
   })
-
 })
 
 describe('Node', function () {
-  
   describe('construction', function () {
-
     var b
 
     before(function () {
@@ -85,6 +76,7 @@ describe('Node', function () {
       b = undefined
     })
 
+    /* eslint-disable no-new */
     it('should construct normally and callback when connected to the bridge', function (done) {
       new Node('node_1', function (err) {
         assert.ifError(err)
@@ -107,11 +99,10 @@ describe('Node', function () {
         done()
       })
     })
-
+    /* eslint-enable no-new */
   })
 
   describe('tell', function () {
-    
     var b, good_nodes
 
     good_nodes = []
@@ -172,11 +163,9 @@ describe('Node', function () {
         done()
       })
     })
-
   })
 
   describe('shout', function () {
-
     var b, good_nodes
 
     good_nodes = []
@@ -211,7 +200,6 @@ describe('Node', function () {
     })
 
     it('should send events to all connected nodes', function (done) {
-      
       async.parallel([
         function (done) {
           good_nodes[0].on('shout_eve', function (param1) {
@@ -228,9 +216,6 @@ describe('Node', function () {
       ], done)
 
       good_nodes[2].shout('shout_eve', 'test-param')
-
     })
-
   })
-
 })
