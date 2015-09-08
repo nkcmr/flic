@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/nkcmr/flic.png?label=ready&title=Ready)](https://waffle.io/nkcmr/flic)
 # flic
 Easy Inter-process communication via TCP
 
