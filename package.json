@@ -23,9 +23,10 @@
   },
   "homepage": "https://github.com/nkcmr/flic",
   "dependencies": {
-    "debug": "2.x",
-    "lodash": "4.x",
-    "uuid": "1.x"
+    "debug": "^2.2.0",
+    "lodash": "^4.3.0",
+    "semver": "^5.1.0",
+    "uuid": "^2.0.1"
   },
   "devDependencies": {
     "async": "1.x",

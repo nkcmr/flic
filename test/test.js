@@ -63,7 +63,7 @@ describe('Bridge', function () {
     })
 
     after(function () {
-      b._server.close()
+      b._server && b._server._handle && b._server.close()
     })
 
     it('should send a close message to all connected nodes', function (done) {
@@ -101,8 +101,8 @@ describe('Node', function () {
     })
 
     after(function () {
-      b._server.close()
-      b2._server.unref()
+      b._server && b._server._handle && b._server.close()
+      b2._server && b2._server._handle && b2._server.close()
     })
 
     it('can still be accessed through flic.node', function () {
@@ -188,7 +188,7 @@ describe('Node', function () {
     })
 
     after(function () {
-      b._server.close()
+      b._server && b._server._handle && b._server.close()
     })
 
     afterEach(function () {
@@ -257,7 +257,7 @@ describe('Node', function () {
     })
 
     after(function () {
-      b._server.close()
+      b._server && b._server._handle && b._server.close()
     })
 
     afterEach(function () {
@@ -295,7 +295,7 @@ describe('Node', function () {
     })
 
     after(function () {
-      b._server.close()
+      b._server && b._server._handle && b._server.close()
     })
 
     it('should tell the bridge that it is leaving', function (done) {
