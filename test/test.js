@@ -1,9 +1,10 @@
 /* global describe, it, before, after, afterEach */
 'use strict'
 
+var _ = require('lodash')
 var flic = require('../lib/flic')
-var Bridge = flic.bridge
-var Node = flic.node
+var Node = flic.Node
+var Bridge = flic.Bridge
 
 var assert = require('assert')
 
@@ -13,15 +14,26 @@ describe('Bridge', function () {
   describe('construction', function () {
     var test_bridge
 
-    after(function () {
-      test_bridge.close()
+    it('can still be accessed through flic.bridge', function () {
+      assert(Bridge === flic.bridge)
     })
 
-    it('should construct normally', function () {
-      test_bridge = new Bridge()
-      test_bridge._tcpServer.unref()
+    it('should construct normally', function (done) {
+      test_bridge = flic.createBridge()
+      test_bridge._server.unref()
       assert(test_bridge instanceof Bridge)
-      assert.equal(test_bridge._port, 8221)
+      assert.equal(test_bridge._config.port, 8221)
+      test_bridge._server.close(done)
+    })
+
+    it('should allow setting of the listening port', function (done) {
+      test_bridge = flic.createBridge({
+        port: 9003
+      })
+      test_bridge._server.unref()
+      assert(test_bridge instanceof Bridge)
+      assert.equal(test_bridge._config.port, 9003)
+      test_bridge._server.close(done)
     })
   })
 
@@ -31,14 +43,27 @@ describe('Bridge', function () {
     good_nodes = []
 
     before(function (done) {
-      b = new Bridge()
-      good_nodes.push(new Node('node_1', function (err) {
-        assert.ifError(err)
-        good_nodes.push(new Node('node_2', function (err) {
+      done = _.after(2, done)
+      b = flic.createBridge()
+      b._server.unref()
+      good_nodes.push(flic.createNode({
+        id: 'node_1',
+        connect_callback: function (err) {
           assert.ifError(err)
           done()
-        }))
+        }
       }))
+      good_nodes.push(flic.createNode({
+        id: 'node_2',
+        connect_callback: function (err) {
+          assert.ifError(err)
+          done()
+        }
+      }))
+    })
+
+    after(function () {
+      b._server.close()
     })
 
     it('should send a close message to all connected nodes', function (done) {
@@ -58,48 +83,83 @@ describe('Bridge', function () {
       ], done)
 
       b.close(['live long and prosper'])
-      b = undefined
     })
   })
 })
 
 describe('Node', function () {
   describe('construction', function () {
-    var b
+    var b, b2
 
     before(function () {
-      b = new Bridge()
+      b2 = flic.createBridge({
+        port: 9823
+      })
+      b = flic.createBridge()
+      b._server.unref()
+      b2._server.unref()
     })
 
     after(function () {
-      b.close()
-      b = undefined
+      b._server.close()
+      b2._server.unref()
     })
 
-    /* eslint-disable no-new */
-    it('should construct normally and callback when connected to the bridge', function (done) {
-      new Node('node_1', function (err) {
+    it('can still be accessed through flic.node', function () {
+      assert(Node === flic.node)
+    })
+
+    it('should be backwards compatible with v1.x', function (done) {
+      var node = new Node('node_22', function (err) {
         assert.ifError(err)
         done()
+      })
+      assert(node instanceof Node)
+    })
+
+    it('should construct normally and callback when connected to the bridge', function (done) {
+      flic.createNode({
+        id: 'node_1',
+        connect_callback: function (err) {
+          assert.ifError(err)
+          done()
+        }
       })
     })
 
     it('should fail because the name is taken', function (done) {
-      new Node('node_1', function (err) {
-        assert(err)
-        done()
+      flic.createNode({
+        id: 'node_1',
+        connect_callback: function (err) {
+          assert(err)
+          done()
+        }
       })
     })
 
     it('should fail because there is no bridge listening on specified port', function (done) {
       this.timeout(3000)
 
-      new Node('muh_dumb_node', 9999, function (err) {
-        assert(err)
-        done()
+      flic.createNode({
+        id: 'muh_dumb_node',
+        port: 9999,
+        connect_callback: function (err) {
+          assert(err)
+          done()
+        }
       })
     })
-    /* eslint-enable no-new */
+
+    it('should be able to connect normally to a server on a different port', function (done) {
+      flic.createNode({
+        id: 'node_3',
+        port: 9823,
+        connect_callback: function (err) {
+          assert.ifError(err)
+          done()
+        }
+      })
+    })
   })
 
   describe('tell', function () {
@@ -108,19 +168,27 @@ describe('Node', function () {
     good_nodes = []
 
     before(function (done) {
+      done = _.after(2, done)
       b = new Bridge()
-      good_nodes.push(new Node('node_1', function (err) {
-        assert.ifError(err)
-        good_nodes.push(new Node('node_2', function (err) {
+      b._server.unref()
+      good_nodes.push(flic.createNode({
+        id: 'node_1',
+        connect_callback: function (err) {
           assert.ifError(err)
           done()
-        }))
+        }
+      }))
+      good_nodes.push(flic.createNode({
+        id: 'node_2',
+        connect_callback: function (err) {
+          assert.ifError(err)
+          done()
+        }
       }))
     })
 
     after(function () {
-      b.close()
-      b = undefined
+      b._server.close()
     })
 
     afterEach(function () {
@@ -171,16 +239,16 @@ describe('Node', function () {
     good_nodes = []
 
     before(function (done) {
-      b = new Bridge()
+      b = flic.createBridge()
       async.parallel([
         function (cb) {
-          good_nodes.push(new Node('node_1', cb))
+          good_nodes.push(flic.createNode({id: 'node_1', connect_callback: cb}))
         },
         function (cb) {
-          good_nodes.push(new Node('node_2', cb))
+          good_nodes.push(flic.createNode({id: 'node_2', connect_callback: cb}))
         },
         function (cb) {
-          good_nodes.push(new Node('node_3', cb))
+          good_nodes.push(flic.createNode({id: 'node_3', connect_callback: cb}))
         }
       ], function (err) {
         assert.ifError(err)
@@ -189,8 +257,7 @@ describe('Node', function () {
     })
 
     after(function () {
-      b.close()
-      b = undefined
+      b._server.close()
     })
 
     afterEach(function () {
@@ -223,22 +290,25 @@ describe('Node', function () {
     var b
 
     before(function () {
-      b = new Bridge()
+      b = flic.createBridge()
+      b._server.unref()
     })
 
     after(function () {
-      b.close()
-      b = undefined
+      b._server.close()
     })
 
     it('should tell the bridge that it is leaving', function (done) {
-      var x = new Node('leaving_node', function (err) {
-        assert.ifError(err)
-        x.leave()
-        setTimeout(function () {
-          assert.ok(!b._sockets.hasOwnProperty('leaving_node'), b._sockets)
-          done()
-        }, 20)
+      var x = flic.createNode({
+        id: 'leaving_node',
+        connect_callback: function (err) {
+          assert.ifError(err)
+          x.leave()
+          setTimeout(function () {
+            assert.ok(!b._sockets.hasOwnProperty('leaving_node'), b._sockets)
+            done()
+          }, 20)
+        }
       })
     })
   })
