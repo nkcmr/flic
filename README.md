@@ -1,74 +1,94 @@
-# flic
-Easy Inter-process communication via TCP
+# flic [![Build Status](https://travis-ci.org/nkcmr/flic.png?branch=master)](https://travis-ci.org/nkcmr/flic) [![npm version](https://img.shields.io/npm/v/flic.svg?style=flat-square)](https://www.npmjs.com/package/flic)
+easy inter-process communication via tcp.
 
-[![Build Status](https://travis-ci.org/nkcmr/flic.png?branch=master)](https://travis-ci.org/nkcmr/flic)
-[![Stories in Ready](https://badge.waffle.io/nkcmr/flic.png?label=ready&title=Ready)](https://waffle.io/nkcmr/flic)
 
-# Install
-via git:
+
+# install
+
+
 ```bash
- [root@localhost ~] npm install git://github.com/nkcmr/flic
+npm install flic
 ```
 
-or npm
-```bash
- [root@localhost ~] npm install flic
-```
-
-# Usage
-```javascript
-var flic = require('flic');
-var Bridge = flic.bridge;
-var Node = flic.node;
-
-// Default port is 8221
-
-// Bridge can be in any process, and nodes can be in any process
-var bridge = new Bridge();
-
-var node1 = new Node('node1', function(err){
-  if(err) return handleError(err);
-
-	// Successfully connected to Bridge
-	console.log('node1 online!');
-});
-
-node1.on('event', function(param1, callback){
-	// do awesomeness	
-	console.log(param1); // -> 'flic_is_easy'
-
-	//send a callback fig.1
-	callback(null, 'ilovenodejs');
-});
-```
-Somewhere else, far far away!
+# usage
+flic's main purpose is to faciliate shuffling and passing of arbitrary data between various processes or networks. seperate processes (or even machines) can call actions on other processes and acknowledge those actions as well.
 
 ```javascript
-// Make anonymous nodes by not giving it a name
-// Anonymous nodes:
-// Cannot be told (Node.tell) anything
-// Can tell other nodes
-// Can receive shouts
-// Helps avoid duplicate node names
+var flic = require('flic')
 
-var anonymous_node = new Node(function(err){
-  if(err) return handleError(err);
+// bridges can be in any process, and nodes can be in any process
+var bridge = flic.createBridge()
 
-	console.log('somenode online!');
+var node1 = flic.createNode('node1', function (err) {
+  if (err) {
+    return handle_error(err)
+  }
+
+  // successfully connected to bridge
+  console.log('node1 online!');
 });
 
-anonymous_node.tell('node1:event', 'flic_is_easy', function(err, param2){
-  if(err) return handleError(err);
+node1.on('event', function (param1, callback) {
+  // do awesomeness
+  console.log(param1) // -> 'flic_is_easy'
 
-	console.log(param2); // -> 'ilovenodejs'
-});
+  // send a callback fig.1
+  callback(null, 'ilovenodejs')
+})
+```
+somewhere else, in another process far far away!
+
+```javascript
+// make anonymous nodes by not giving it a name
+// anonymous nodes:
+// cannot be told (node.tell) anything
+// can tell other nodes
+// can receive shouts
+// helps avoid duplicate node names
+
+var anonymous_node = flic.createNode(function (err) {
+  if (err) {
+    return handle_error(err)
+  }
+  console.log('somenode online!')
+})
+
+anonymous_node.tell('node1:event', 'flic_is_easy', function (err, param2) {
+  if (err) {
+    return handle_error(err)
+  }
+  console.log(param2) // -> 'ilovenodejs'
+})
 
 ```
 
-# Concept
-flics intended solution is to be able to send arbitrary data in between seperated proccesses without a whole lot of fuss. There are existing inter-process messaging APIs already built into node (between parent and child processes) but this can hook up any locally running node processes fairly easily.
+# api
 
-# API
+- **flic**
+	- **flic.createNode([config])**
+	- **flic.createBridge([config])**
+	- **Class: flic.Bridge**
+		- **bridge.close([data][,...])**
+	- **Class: flic.Node**
+		- **node.tell(whowhat, [args][,...])**
+		- **node.shout(event, [args][,...])**
+
+### flic
+the `flic` module can be accessed by using `require('flic')`
+
+### flic.createNode([config])
+creates a new node. `config` is an object with the following defaults:
+
+```
+{
+	id: <random uuid-v4>,
+	port: 8221,
+	connect_callback: function () {},
+	max_connect_attempts: 5,
+	timeout: 0
+}
+```
+
 ### Node
 A node is an endpoint that can be reached by other nodes. Exposed by `require('flic').node`
 #### new Node( [name], [port], [callback] )
@@ -128,7 +148,7 @@ Closes the bridge and sends any data to connected nodes.
 
 # The MIT License (MIT)
 
-Copyright (c) 2013 Nick Comer
+Copyright (c) 2016 Nick Comer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
