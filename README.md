@@ -1,134 +1,134 @@
-# flic
-Easy Inter-process communication via TCP
+# flic [![Build Status](https://travis-ci.org/nkcmr/flic.png?branch=master)](https://travis-ci.org/nkcmr/flic) [![npm version](https://img.shields.io/npm/v/flic.svg?style=flat-square)](https://www.npmjs.com/package/flic)
+easy inter-process communication via tcp.
 
-[![Build Status](https://travis-ci.org/nkcmr/flic.png?branch=master)](https://travis-ci.org/nkcmr/flic)
-[![Stories in Ready](https://badge.waffle.io/nkcmr/flic.png?label=ready&title=Ready)](https://waffle.io/nkcmr/flic)
 
-# Install
-via git:
+
+# install
+
+
 ```bash
- [root@localhost ~] npm install git://github.com/nkcmr/flic
+npm install --save flic
 ```
 
-or npm
-```bash
- [root@localhost ~] npm install flic
-```
+# usage
+flic's main purpose is to faciliate shuffling and passing of arbitrary data across various processes or networks.
 
-# Usage
-```javascript
-var flic = require('flic');
-var Bridge = flic.bridge;
-var Node = flic.node;
-
-// Default port is 8221
-
-// Bridge can be in any process, and nodes can be in any process
-var bridge = new Bridge();
-
-var node1 = new Node('node1', function(err){
-  if(err) return handleError(err);
-
-	// Successfully connected to Bridge
-	console.log('node1 online!');
-});
-
-node1.on('event', function(param1, callback){
-	// do awesomeness	
-	console.log(param1); // -> 'flic_is_easy'
-
-	//send a callback fig.1
-	callback(null, 'ilovenodejs');
-});
-```
-Somewhere else, far far away!
+being able to split up your application into different processes and even machines can vastly improve reliability and scalability, especially in an environment like node.js, where if your only process fails, your whole app is down.
 
 ```javascript
-// Make anonymous nodes by not giving it a name
-// Anonymous nodes:
-// Cannot be told (Node.tell) anything
-// Can tell other nodes
-// Can receive shouts
-// Helps avoid duplicate node names
+var flic = require('flic')
 
-var anonymous_node = new Node(function(err){
-  if(err) return handleError(err);
+// bridges can be in any process, and nodes can be in any process
+var bridge = flic.createBridge()
 
-	console.log('somenode online!');
+var node1 = flic.createNode('node1', function (err) {
+  if (err) {
+    return handle_error(err)
+  }
+
+  // successfully connected to bridge
+  console.log('node1 online!');
 });
 
-anonymous_node.tell('node1:event', 'flic_is_easy', function(err, param2){
-  if(err) return handleError(err);
+node1.on('event', function (param1, callback) {
+  // do awesomeness
+  console.log(param1) // -> 'flic_is_easy'
 
-	console.log(param2); // -> 'ilovenodejs'
-});
-
+  // send a callback fig.1
+  callback(null, 'ilovenodejs')
+})
 ```
-
-# Concept
-flics intended solution is to be able to send arbitrary data in between seperated proccesses without a whole lot of fuss. There are existing inter-process messaging APIs already built into node (between parent and child processes) but this can hook up any locally running node processes fairly easily.
-
-# API
-### Node
-A node is an endpoint that can be reached by other nodes. Exposed by `require('flic').node`
-#### new Node( [name], [port], [callback] )
-Creates a new instance of `Node`
-
-- `name [string]` (optional) A name for the node, so that it can be contacted by other nodes, if none is specified, the node will be assigned a random name and be **anonymous**. Anonymous nodes cannot be reached by other nodes, but can receive shouts.
-- `port [number]` (optional, defaults to 8221) The port number of the Bridge.
-- `callback [function]` (optional) A callback that will be called when the node is done trying to connect with the Bridge. Callback will be called with only one error parameter, if `null`, the node is successfully connected.
-
-#### node#tell( who_what, [args...], [callback] )
-Tell another node about an event
-
-- `who_what [string]` (required) the inteded target of the tell. For example if you wanted to reach the `cache` node and tell it to `get` something, this parameter would be `cache:get`. To tell `webworker` to `suspend`, it would be `webworker:suspend`.
-- `args [mixed]` (optional) Put any arguments that need to be sent to the remote node. Example: When calling `node.tell("webworker:suspend", "now", 0, function(){});` the web worker's suspend event will receive `"now"` and `0` as parameters.
-- `callback [function]` (optional) If the remote node decideds to reply via callback, this is the function that will be called. (expect the first parameter to be an error, if one occured)
-
-#### node#shout( event_name, [args...] )
-Tell all connected nodes about an event
-
-- `event_name [string]` (required) The event to broadcast.
-- `args [mixed]` (optional) any arguments that the receivers of the shout should receive.
-
-Node instances also inherit the node.js EventEmitter, so when other nodes tell a node about an event, you can attach a listener of that event like you would with the EventEmitter. Example:
+somewhere else, in another process far far away!
 
 ```javascript
-var node1 = new Node('node1', function(){ 
-    console.log('online'); 
-});
-node1.on('my_event', function(param1, callback){
-    console.log(param1); // -> 'ilovenodejs'
-    callback(null, 'me too!');
-});
+// make anonymous nodes by not giving it a name
+// anonymous nodes:
+// cannot be told (node.tell) anything
+// can tell other nodes
+// can receive shouts
+// helps avoid duplicate node names
 
-var anon_node = new Node(function(){
-    console.log('Anonymous node is online.');
-    this.tell('node1:my_event', 'ilovenodejs', function(err, param1){
-       console.log(param1); // -> 'me too!' 
-    });
-});
+var anonymous_node = flic.createNode(function (err) {
+  if (err) {
+    return handle_error(err)
+  }
+  console.log('somenode online!')
+})
+
+anonymous_node.tell('node1:event', 'flic_is_easy', function (err, param2) {
+  if (err) {
+    return handle_error(err)
+  }
+  console.log(param2) // -> 'ilovenodejs'
+})
+
 ```
 
-**Note about callbacks: ** All callbacks should use the 'error-first' style, because if an error occurs with flic, it will notify not only through the callbacks, but using the first parameter to tell which error has occurred.
+# api
 
-### Bridge
+- **[flic](#flic)**
+	- **[flic.createNode([config])](#fliccreatenodeconfig)**
+	- **[flic.createBridge([config])](#fliccreatebridgeconfig)**
+	- **[Class: flic.Bridge](#class-flicbridge)**
+		- **[bridge.close([data][,...])](#bridgeclosedata)**
+	- **[Class: flic.Node](#class-flicnode)**
+		- **[node.tell(whowhat, [args][,...], [callback])](#nodetellwhowhat-args-callback)**
+		- **[node.shout(event, [args][,...])](#nodeshoutevent-args)**
+		- **[node.leave([force])](#nodeleaveforce)**
 
-The bridge is what it sounds like, it is merely a bridge between the nodes, not very much logic or work goes into the bridge. Exposed by `require('flic').bridge`
+### flic
+the `flic` module can be accessed by using `require('flic')`
 
-#### new Bridge( [port] )
-Creates a new instance of `Bridge`
+### flic.createNode([config])
+creates a new node. `config` is an object with the following available properties:
 
-- `port [number]` (optional, defaults to 8221) A port number for the bridge to listen on.
+- `id` string - optional.
+- `port` number - optional.
+- `connect_callback` function - optional.
+- `max_connection_attempts` number - optional.
+- `timeout` number - optional.
 
-#### Bridge#close( [args...] )
-Closes the bridge and sends any data to connected nodes.
+### flic.createBridge([config])
+creates a new bridge. `config` is an object with the following available properties:
 
-- `args [mixed]` (optional) any data to be sent to connected nodes upon close.
+- `port` number - optional.
+
+### Class: flic.Bridge
+the bridge is the middle-man between nodes that helps pass messages along.
+
+### bridge.close([data][,...])
+close the underlying server and optionally send any parting data.
+
+```javascript
+var bridge = flic.createBridge()
+// ... later ...
+
+// send an object to all nodes before leaving
+bridge.close({ reason: 'im tired' })
+```
+
+### Class: flic.Node
+nodes are objects which are capable of sending and receiving events and data from other nodes.
+
+### node.tell(whowhat, [args][,...], [callback])
+
+communicates data with other nodes through events. `whowhat` is a string that is formatted as such: `node_name:event`. `node_name` is the node that is trying to be reached. `event` is the event that should be emitted on the remote node. all following arguments are packed up and sent to the remote node.
+
+`callback` is a function which will be called if the remote decides to acknowledge the event.
+
+*note:* callbacks should follow the "error-first" style of callbacks so that errors can be communicated.
+
+### node.shout(event, [args][,...])
+
+communicates data with all nodes through an event. this does not have the ability to receive acknowledgment callbacks.
+
+### node.leave([force])
+
+disconnects from the bridge and properly cleans up links in the bridge. there is the ability to immediately disconnect without telling the bridge with the `force` option.
 
 # The MIT License (MIT)
 
-Copyright (c) 2013 Nick Comer
+Copyright (c) 2016 Nick Comer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
