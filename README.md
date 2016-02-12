@@ -66,15 +66,15 @@ anonymous_node.tell('node1:event', 'flic_is_easy', function (err, param2) {
 
 # api
 
-- **flic**
-	- **flic.createNode([config])**
-	- **flic.createBridge([config])**
-	- **Class: flic.Bridge**
-		- **bridge.close([data][,...])**
-	- **Class: flic.Node**
-		- **node.tell(whowhat, [args][,...], [callback])**
-		- **node.shout(event, [args][,...])**
-		- **node.leave([force])**
+- **[flic](#flic)**
+	- **[flic.createNode([config])](#fliccreatenodeconfig)**
+	- **[flic.createBridge([config])](#fliccreatebridgeconfig)**
+	- **[Class: flic.Bridge](#class-flicbridge)**
+		- **[bridge.close([data][,...])](#bridgeclosedata)**
+	- **[Class: flic.Node](#class-flicnode)**
+		- **[node.tell(whowhat, [args][,...], [callback])](#nodetellwhowhat-args-callback)**
+		- **[node.shout(event, [args][,...])](#nodeshoutevent-args)**
+		- **[node.leave([force])](#nodeleaveforce)**
 
 ### flic
 the `flic` module can be accessed by using `require('flic')`
