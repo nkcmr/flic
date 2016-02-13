@@ -110,11 +110,18 @@ describe('Node', function () {
     })
 
     it('should be backwards compatible with v1.x', function (done) {
+      done = _.after(2, done)
       var node = new Node('node_22', function (err) {
         assert.ifError(err)
         done()
       })
       assert(node instanceof Node)
+
+      var node2 = flic.createNode('node_34', function (err) {
+        assert.ifError(err)
+        done()
+      })
+      assert(node2 instanceof Node)
     })
 
     it('should construct normally and callback when connected to the bridge', function (done) {
