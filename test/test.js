@@ -19,11 +19,12 @@ describe('Bridge', function () {
     })
 
     it('should construct normally', function (done) {
-      test_bridge = flic.createBridge()
+      test_bridge = flic.createBridge(function () {
+        assert(test_bridge instanceof Bridge)
+        assert.equal(test_bridge._config.port, 8221)
+        test_bridge._server.close(done)
+      })
       test_bridge._server.unref()
-      assert(test_bridge instanceof Bridge)
-      assert.equal(test_bridge._config.port, 8221)
-      test_bridge._server.close(done)
     })
 
     it('should allow setting of the listening port', function (done) {
@@ -34,6 +35,17 @@ describe('Bridge', function () {
       assert(test_bridge instanceof Bridge)
       assert.equal(test_bridge._config.port, 9003)
       test_bridge._server.close(done)
+    })
+
+    it('should pass any errors to a listener callback', function (done) {
+      test_bridge = flic.createBridge(function () {
+        var dupe_bridge = flic.createBridge(function (err) {
+          assert(err)
+          test_bridge._server.close(done)
+        })
+        dupe_bridge._server.unref()
+      })
+      test_bridge._server.unref()
     })
   })
 
