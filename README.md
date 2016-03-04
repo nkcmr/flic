@@ -126,6 +126,17 @@ communicates data with all nodes through an event. this does not have the abilit
 
 disconnects from the bridge and properly cleans up links in the bridge. there is the ability to immediately disconnect without telling the bridge with the `force` option.
 
+## command-line usage
+
+a bridge can be started without putting it into a random process. to do so, install flic globally, like this:
+
+```
+npm install -g flic
+```
+
+and then you can start a bridge by simply executing: `flic --bridge`. tweaking the listening address is possible by simply stating it as an argument to `--bridge`, `flic --bridge 0.0.0.0:8222`
+
+
 # The MIT License (MIT)
 
 Copyright (c) 2016 Nick Comer
