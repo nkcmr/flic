@@ -3,6 +3,9 @@
   "version": "1.2.3",
   "description": "Easy Inter-process Communication via TCP for node.js",
   "main": "lib/flic.js",
+  "bin": {
+    "flic": "./bin/cli.js"
+  },
   "scripts": {
     "test": "standard && NODE_ENV=testing mocha ./test/test.js"
   },
@@ -23,8 +26,10 @@
   },
   "homepage": "https://github.com/nkcmr/flic",
   "dependencies": {
+    "commander": "^2.9.0",
     "debug": "^2.2.0",
     "lodash": "^4.3.0",
+    "modlog": "^0.3.3",
     "semver": "^5.1.0",
     "uuid": "^2.0.1"
   },
