@@ -30,11 +30,12 @@ describe('Bridge', function () {
     it('should allow setting of the listening port', function (done) {
       test_bridge = flic.createBridge({
         port: 9003
+      }, function (err) {
+        assert.ifError(err)
+        assert.equal(test_bridge._config.port, 9003)
+        test_bridge._server.close(done)
       })
       test_bridge._server.unref()
-      assert(test_bridge instanceof Bridge)
-      assert.equal(test_bridge._config.port, 9003)
-      test_bridge._server.close(done)
     })
 
     it('should pass any errors to a listener callback', function (done) {
