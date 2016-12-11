@@ -304,6 +304,25 @@ describe('Node', function () {
 
       goodNodes[2].shout('shout_eve', 'test-param')
     })
+
+    it('should catch events shouted very quickly', function (done) {
+      async.parallel([
+        function (done) {
+          goodNodes[0].on('shout_eve', function (param1) {
+            var isParamOk = param1 === 'test-param 1' ||
+              param1 === 'test-param 2' ||
+              param1 === 'test-param 3'
+
+            assert.ok(isParamOk)
+            done()
+          })
+        }
+      ], done)
+
+      goodNodes[2].shout('shout_eve', 'test-param 1')
+      goodNodes[2].shout('shout_eve', 'test-param 2')
+      goodNodes[2].shout('shout_eve', 'test-param 3')
+    })
   })
 
   describe('leave', function () {
