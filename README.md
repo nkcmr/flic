@@ -1,3 +1,10 @@
+## ⚠️ unmaintained
+This project is no longer maintained and has not been for years as of this writing (December 2022). In general the library itself served a purpose in some very small-scale backend services I maintained a long time ago. As I have learned more about how to design large-scale/mission-critical systems, the idea of processes communicating directly with each other on a peer-to-peer basis without some coordination protocol (Raft, Paxos, etc.) is extremely failure-prone. Here are some alternatives that are a better fit:
+
+- For simply reading/writing data: A simple HTTP/JSON server. If you simply need to read/write data, there is nothing better than a simple HTTP server that understands JSON for sending/receiving data. The HTTP protocol is the most reliable protocol ever written, so you can't go wrong.
+- For read/write that is strongly typed and has a deterministic structure: Try [gRPC](https://grpc.io/).
+- For creating distributed coordination: Can't go wrong with [consul](https://www.consul.io/) or [etcd](https://etcd.io/).
+
 # flic [![Build Status](https://travis-ci.org/nkcmr/flic.png?branch=master)](https://travis-ci.org/nkcmr/flic) [![npm version](https://img.shields.io/npm/v/flic.svg?style=flat-square)](https://www.npmjs.com/package/flic)
 easy inter-process communication via tcp.
 
